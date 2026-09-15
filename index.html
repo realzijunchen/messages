@@ -3,291 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
 <title>Firebase Chat</title>
 <style>
 :root{--bg:#0b1020;--panel:#11182b;--panel2:#18223a;--border:#273452;--text:#eef3ff;--muted:#93a0ba;--accent:#6d7cff;--accent2:#5262e8}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#17223d 0,#0b1020 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;height:100vh;overflow:hidden}button,input,textarea{font:inherit}
-button{cursor:pointer}.hidden{display:none!important}
-#loginScreen{height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:min(410px,100%);background:rgba(17,24,43,.95);border:1px solid var(--border);border-radius:22px;padding:34px;box-shadow:0 25px 80px #0007}.logo{width:56px;height:56px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#a66cff);font-size:28px;margin-bottom:18px}h1{margin:0 0 8px;font-size:28px}.sub{color:var(--muted);margin:0 0 26px}.field{margin:14px 0}.field label{display:block;color:#b8c2d8;font-size:13px;margin-bottom:7px}.field input{width:100%;background:#0c1324;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:13px 14px;outline:none}.field input:focus{border-color:var(--accent)}.primary{width:100%;border:0;border-radius:12px;padding:13px;background:var(--accent);color:#fff;font-weight:700;margin-top:10px}.primary:hover{background:var(--accent2)}#error{color:#ff8d98;font-size:13px;margin-top:12px;min-height:18px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#17223d 0,#0b1020 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;height:100vh;overflow:hidden}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+#loginScreen,#vaultScreen{height:100vh;display:grid;place-items:center;padding:20px}.card{width:min(580px,100%);background:rgba(17,24,43,.96);border:1px solid var(--border);border-radius:22px;padding:30px;box-shadow:0 25px 80px #0007}.login-card{width:min(410px,100%)}
+.logo{width:56px;height:56px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#a66cff);font-size:28px;margin-bottom:18px}h1{margin:0 0 8px;font-size:28px}.sub{color:var(--muted);margin:0 0 20px}.field{margin:14px 0}.field label{display:block;color:#b8c2d8;font-size:13px;margin-bottom:7px}.field input{width:100%;background:#0c1324;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:13px 14px;outline:none}.field input:focus{border-color:var(--accent)}
+.primary,.secondary{width:100%;border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:10px}.primary{background:var(--accent);color:#fff}.primary:hover{background:var(--accent2)}.secondary{background:#222e4a;color:#fff}.secondary:hover{background:#2a3960}.primary:disabled,.secondary:disabled{opacity:.55;cursor:not-allowed}
+.notice{background:#0c1324;border:1px solid var(--border);border-radius:12px;padding:13px 14px;color:#c2cbe0;font-size:13px;line-height:1.55;margin:15px 0}.notice strong{color:#fff}.small{font-size:11px;color:var(--muted);line-height:1.5}.vault-status{margin-top:12px}.vault-box{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.vault-name{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0b1223;border:1px solid var(--border);border-radius:8px;padding:8px 10px;word-break:break-all}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#202d4a;color:#c6d1ec;font-size:11px}.error{color:#ff8d98;font-size:13px;margin-top:12px;min-height:18px}
 #app{height:100vh;display:flex}.sidebar{width:280px;background:rgba(12,18,34,.96);border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:18px;margin-bottom:22px}.brand-icon{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#9c62ff);display:grid;place-items:center}.user-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:16px}.user-name{font-weight:700}.status{font-size:12px;color:#72e2a4;margin-top:4px}.sidebar-title{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#697794;margin:12px 5px}.room{padding:11px 12px;border-radius:10px;background:var(--panel2);font-weight:600}.sidebar-footer{margin-top:auto;color:#687590;font-size:11px;line-height:1.5}
-.chat{flex:1;min-width:0;display:flex;flex-direction:column}.header{height:70px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;background:#0f1628e8}.header-title{font-weight:800}.header-sub{font-size:12px;color:var(--muted);margin-top:3px}.messages{flex:1;overflow-y:auto;padding:24px clamp(14px,4vw,55px);display:flex;flex-direction:column;gap:12px}.message{display:flex;gap:10px;max-width:min(780px,90%)}.message.mine{margin-left:auto;flex-direction:row-reverse}.avatar{width:36px;height:36px;min-width:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#5969f0,#a05de7);font-weight:800}.bubble-wrap{min-width:0}.meta{font-size:11px;color:var(--muted);margin:0 4px 5px}.mine .meta{text-align:right}.bubble{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:10px 13px;word-wrap:break-word;white-space:pre-wrap}.mine .bubble{background:#2737a2;border-color:#3b4bd0}.bubble img{max-width:min(420px,100%);max-height:330px;border-radius:10px;display:block}.file{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;background:#0b1223aa;border:1px solid #ffffff22;border-radius:10px;padding:10px}.file-icon{font-size:23px}.file-info{min-width:0}.file-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-size{font-size:11px;color:#aeb9d0}.empty{margin:auto;text-align:center;color:var(--muted)}.empty .big{font-size:45px;margin-bottom:8px}
+.chat{flex:1;min-width:0;display:flex;flex-direction:column}.header{height:70px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;background:#0f1628e8}.header-title{font-weight:800}.header-sub{font-size:12px;color:var(--muted);margin-top:3px}.messages{flex:1;overflow-y:auto;padding:24px clamp(14px,4vw,55px);display:flex;flex-direction:column;gap:12px}.message{display:flex;gap:10px;max-width:min(780px,90%)}.message.mine{margin-left:auto;flex-direction:row-reverse}.avatar{width:36px;height:36px;min-width:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#5969f0,#a05de7);font-weight:800}.bubble-wrap{min-width:0}.meta{font-size:11px;color:var(--muted);margin:0 4px 5px}.mine .meta{text-align:right}.bubble{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:10px 13px;word-wrap:break-word;white-space:pre-wrap}.mine .bubble{background:#2737a2;border-color:#3b4bd0}.bubble img{max-width:min(420px,100%);max-height:330px;border-radius:10px;display:block}.file{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;background:#0b1223aa;border:1px solid #ffffff22;border-radius:10px;padding:10px;width:100%;text-align:left}.file-icon{font-size:23px}.file-info{min-width:0}.file-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-size{font-size:11px;color:#aeb9d0}.empty{margin:auto;text-align:center;color:var(--muted)}.empty .big{font-size:45px;margin-bottom:8px}
 .composer-area{padding:12px clamp(14px,4vw,55px) 18px;border-top:1px solid var(--border);background:#0d1425}.composer{display:flex;align-items:flex-end;gap:8px;background:#151e34;border:1px solid var(--border);border-radius:16px;padding:8px}.icon-btn{width:40px;height:40px;border:0;border-radius:11px;background:transparent;color:#aeb9d0;font-size:21px;display:grid;place-items:center}.icon-btn:hover{background:#222e4a;color:#fff}textarea{flex:1;resize:none;max-height:150px;min-height:40px;background:transparent;border:0;outline:0;color:#fff;padding:10px 5px;line-height:20px}.send{width:42px;height:42px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-size:19px}.send:disabled{opacity:.5;cursor:not-allowed}.hint{font-size:10px;color:#62708d;text-align:center;margin-top:7px}
 #emojiPicker{position:fixed;bottom:84px;left:calc(280px + 24px);width:300px;background:#11182b;border:1px solid var(--border);border-radius:15px;padding:10px;box-shadow:0 20px 60px #0009;z-index:20}.emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}.emojis button{border:0;background:transparent;font-size:22px;border-radius:8px;padding:5px}.emojis button:hover{background:#222e4a}.progress{position:fixed;left:0;right:0;top:0;height:3px;background:transparent;z-index:100}.progress.on{background:linear-gradient(90deg,var(--accent),#a66cff);animation:load 1s infinite}@keyframes load{0%{opacity:.35}50%{opacity:1}100%{opacity:.35}}
-@media(max-width:700px){.sidebar{display:none}.message{max-width:94%}#emojiPicker{left:10px;bottom:90px}.header{padding:0 14px}.messages{padding:16px 10px}.composer-area{padding:10px}}
+#toast{position:fixed;right:18px;bottom:18px;background:#11182b;border:1px solid var(--border);padding:12px 14px;border-radius:12px;box-shadow:0 15px 45px #0009;z-index:200;max-width:min(420px,90vw)}
+@media(max-width:700px){.sidebar{display:none}.message{max-width:94%}#emojiPicker{left:10px;bottom:90px}.header{padding:0 14px}.messages{padding:16px 10px}.composer-area{padding:10px}.card{padding:22px}}
 </style>
 </head>
 <body>
-<div id="loginScreen">
-<form class="login-card" id="loginForm">
-<div class="logo">💬</div><h1>Sign in</h1><p class="sub">Enter your account details to open the chat.</p>
+<div id="loginScreen"><form class="card login-card" id="loginForm">
+<div class="logo">💬</div><h1>Sign in</h1><p class="sub">Enter your account details.</p>
 <div class="field"><label>Username</label><input id="username" autocomplete="username" required></div>
 <div class="field"><label>Password</label><input id="password" type="password" autocomplete="current-password" required></div>
-<button class="primary" type="submit">Log in</button><div id="error"></div>
-</form>
-</div>
+<button class="primary" type="submit">Log in</button><div id="error" class="error"></div>
+</form></div>
 
-<div id="app" class="hidden">
-<aside class="sidebar">
+<div id="vaultScreen" class="hidden"><div class="card">
+<div class="logo">🔐</div><h1>Unlock your key directory</h1><p class="sub">The account password authenticates your account; the local key directory authenticates this device for encrypted history.</p>
+<div class="notice"><strong>Your private keys stay on this device.</strong> Firestore receives only public keys and encrypted message/file data.<br><br>
+If you do not have the directory on this device, you must <strong>transfer it securely</strong> from your trusted device. Do not send the directory through this chat.</div>
+<div class="field"><label>Account password</label><input id="vaultPassword" type="password" autocomplete="current-password" placeholder="Enter your password again" required></div>
+<div class="vault-box"><button class="primary" id="selectVaultBtn" type="button" style="flex:1;min-width:200px">Select existing directory</button><button class="secondary" id="createVaultBtn" type="button" style="flex:1;min-width:200px">Create new 365×5 vault</button></div>
+<div id="vaultStatus" class="vault-status small"></div><div id="vaultError" class="error"></div>
+<div class="small" style="margin-top:15px">For browser security, the site cannot silently search your computer for the directory. Your browser will ask you to choose the folder. The random directory name is shown for five minutes only after creation/selection.</div>
+</div></div>
+
+<div id="app" class="hidden"><aside class="sidebar">
 <div class="brand"><div class="brand-icon">💬</div> Firebase Chat</div>
-<div class="user-card"><div class="user-name" id="currentUser"></div><div class="status">● Online</div></div>
+<div class="user-card"><div class="user-name" id="currentUser"></div><div class="status">● Online • E2EE</div></div>
 <div class="sidebar-title">Channels</div><div class="room"># general</div>
-<div class="sidebar-footer">Firestore-only chat. Files are stored directly inside message documents, so keep uploads small.</div>
-</aside>
-<main class="chat">
-<header class="header"><div><div class="header-title"># general</div><div class="header-sub">Realtime Firestore chat</div></div></header>
-<section class="messages" id="messages"><div class="empty"><div class="big">💬</div><div>No messages yet.<br>Start the conversation!</div></div></section>
+<div class="sidebar-title">Notifications</div><div class="room" id="notificationStatus">🔔 All • Content shown</div>
+<div class="sidebar-footer">End-to-end encrypted chat. Firestore stores ciphertext only. Files are encrypted before upload. Use /notification, /verify, /closeverify, and /purge &lt;days&gt;.</div>
+</aside><main class="chat">
+<header class="header"><div><div class="header-title"># general</div><div class="header-sub">End-to-end encrypted Firestore chat</div></div></header>
+<section class="messages" id="messages"><div class="empty"><div class="big">🔐</div><div>Unlocking encrypted messages…</div></div></section>
 <div class="composer-area"><div class="composer">
-<button class="icon-btn" id="emojiBtn" title="Emoji" type="button">😊</button>
-<button class="icon-btn" id="fileBtn" title="Upload file" type="button">📎</button>
-<input id="fileInput" type="file" hidden multiple>
-<textarea id="messageInput" rows="1" placeholder="Write a message..."></textarea>
-<button class="send" id="sendBtn" title="Send" type="button">➤</button>
-</div><div class="hint">Enter to send • Shift+Enter for a new line • Files limited to 500 KB</div></div>
+<button class="icon-btn" id="emojiBtn" title="Emoji" type="button">😊</button><button class="icon-btn" id="fileBtn" title="Upload encrypted file" type="button">📎</button><input id="fileInput" type="file" hidden multiple>
+<textarea id="messageInput" rows="1" placeholder="Write a message..."></textarea><button class="send" id="sendBtn" title="Send" type="button">➤</button>
+</div><div class="hint">Enter to send • Shift+Enter for a new line • Files limited to 500 KB • /notification • /verify • /closeverify • /purge &lt;days&gt;</div></div>
 </main></div>
-<div id="emojiPicker" class="hidden"><div class="emojis" id="emojiList"></div></div><div class="progress" id="progress"></div>
+<div id="emojiPicker" class="hidden"><div class="emojis" id="emojiList"></div></div><div class="progress" id="progress"></div><div id="toast" class="hidden"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,deleteDoc,doc}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,deleteDoc,doc,getDoc,setDoc,getDocs,where,writeBatch}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-/* =========================================================
-   FIREBASE CONFIG
-   Firebase Console -> Project settings -> General -> Your apps
-   Replace the values below with YOUR Firebase Web App config.
-   ========================================================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyA_G8Sx1sTo2wXpL4uIMhe-u0Cy19CYDXo",
-  authDomain: "messaging-ced9b.firebaseapp.com",
-  projectId: "messaging-ced9b",
-  storageBucket: "messaging-ced9b.firebasestorage.app",
-  messagingSenderId: "225899298054",
-  appId: "1:225899298054:web:a7efcb72f0bb56fc153287",
-  measurementId: "G-56XCNWLQQ7"
-};
+const firebaseConfig={apiKey:"AIzaSyA_G8Sx1sTo2wXpL4uIMhe-u0Cy19CYDXo",authDomain:"messaging-ced9b.firebaseapp.com",projectId:"messaging-ced9b",storageBucket:"messaging-ced9b.firebasestorage.app",messagingSenderId:"225899298054",appId:"1:225899298054:web:a7efcb72f0bb56fc153287",measurementId:"G-56XCNWLQQ7"};
+const USERS={Chen:"chen@supreme.com",Tomas:"tomas@supreme.com",Junshi:"junshi@supreme.com",Dylan:"dylan@supreme.com",Miguel:"miguel@supreme.com",Aistis:"aistis@supreme.com",Santiago:"santiago@supreme.com",Henrique:"henrique@supreme.com"};
+const USER_NAMES=Object.fromEntries(Object.entries(USERS).map(([u,e])=>[e.toLowerCase(),u]));
+const ADMIN_EMAILS=new Set(["chen@supreme.com"]);
+const MAX_FILE_SIZE=500*1024,KEY_DAYS=365,KEY_SLOTS=5,ECDH_CURVE="P-256",PBKDF2_ITERATIONS=600000,CRYPTO_VERSION=3;
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);let unsubscribeMessages=null,currentUsername="",vaultHandle=null,vaultManifest=null,todayVaultKey=null,notificationPrefs=loadNotificationPrefs(),verificationEnabled=true,toastTimer=null,renderedIds=new Set();
 
-/* =========================================================
-   8 HARD-CODED USERS
-   Fill/change these eight slots.
-   Example:
-   {username:"alice",password:"abc123"}
-   ========================================================= */
-
-/* Maximum raw file size accepted before Base64 encoding. */
-const MAX_FILE_SIZE=500*1024;
-
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-const USERS={
-  "Chen":"chen@supreme.com",
-  "Tomas":"tomas@supreme.com",
-  "Junshi":"junshi@supreme.com",
-  "Dylan":"dylan@supreme.com",
-  "Miguel":"miguel@supreme.com",
-  "Aistis":"aistis@supreme.com",
-  "Santiago":"santiago@supreme.com",
-  "Henrique":"henrique@supreme.com"
-};
-
-const USER_NAMES=Object.fromEntries(
-  Object.entries(USERS).map(([username,email])=>[email.toLowerCase(),username])
-);
-
-let currentUsername="";
-let unsubscribeMessages=null;
-
-const $=id=>document.getElementById(id);
-const loginScreen=$("loginScreen"),appScreen=$("app"),loginForm=$("loginForm"),errorEl=$("error");
-const messagesEl=$("messages"),input=$("messageInput"),sendBtn=$("sendBtn"),fileInput=$("fileInput"),progress=$("progress"),emojiPicker=$("emojiPicker");
-
-function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function formatSize(bytes){if(!bytes)return"0 B";const u=["B","KB","MB"],i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),2);return`${(bytes/Math.pow(1024,i)).toFixed(i?1:0)} ${u[i]}`}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
+function formatSize(bytes){if(!bytes)return"0 B";const u=["B","KB","MB","GB"],i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),3);return`${(bytes/Math.pow(1024,i)).toFixed(i?1:0)} ${u[i]}`}
 function formatTime(ts){if(!ts?.toDate)return"just now";return ts.toDate().toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}
-function avatarFor(name){return escapeHtml((name||"?").trim().charAt(0).toUpperCase())}
+function avatarFor(n){return escapeHtml((n||"?").trim().charAt(0).toUpperCase())}
+function bytesToB64(bytes){let s="";for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s)}
+function b64ToBytes(b64){const s=atob(b64),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
+function randomToken(n=24){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789",b=randomBytes(n);return Array.from(b,x=>a[x%a.length]).join("")}
+function randomBytes(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return a}
+function today(){return new Date().toISOString().slice(0,10)}
+function addDays(iso,n){const d=new Date(`${iso}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function showToast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.add("hidden"),5000)}
+function progress(on){$("progress").classList.toggle("on",on)}
+function isAdmin(){return!!auth.currentUser&&ADMIN_EMAILS.has((auth.currentUser.email||"").toLowerCase())}
 
-function renderMessage(data,id){
-  const mine=data.uid===auth.currentUser?.uid;
-  const wrapper=document.createElement("div");
-  wrapper.className=`message ${mine?"mine":""}`;
-  let body="";
-  if(data.type==="file"){
-    const image=/^image\//.test(data.contentType||"");
-    body=`<a class="file" href="${escapeHtml(data.data)}" download="${escapeHtml(data.fileName)}" target="_blank" rel="noopener">
-      <div class="file-icon">${image?"🖼️":"📎"}</div>
-      <div class="file-info"><div class="file-name">${escapeHtml(data.fileName)}</div>
-      <div class="file-size">${formatSize(data.size)} • Open file</div></div></a>`;
-    if(image)body+=`<img src="${escapeHtml(data.data)}" alt="${escapeHtml(data.fileName)}">`;
-  }else body=escapeHtml(data.text||"");
+function loadNotificationPrefs(){try{const x=JSON.parse(localStorage.getItem("chat-notify")||"{}");return{mode:["all","mentions","off"].includes(x.mode)?x.mode:"all",hideContent:!!x.hideContent}}catch{return{mode:"all",hideContent:false}}}
+function saveNotificationPrefs(){localStorage.setItem("chat-notify",JSON.stringify(notificationPrefs));updateNotificationStatus()}
+function updateNotificationStatus(){$("notificationStatus").textContent=`🔔 ${{all:"All",mentions:"Mentions only",off:"Off"}[notificationPrefs.mode]} • ${notificationPrefs.hideContent?"Content hidden":"Content shown"}`}
+async function requestNotifications(){if(!("Notification"in window))return false;if(Notification.permission!=="default")return Notification.permission==="granted";try{return(await Notification.requestPermission())==="granted"}catch{return false}}
+async function showNotification(title,body){if(!(("Notification"in window)&&Notification.permission==="granted"))return;try{if("serviceWorker"in navigator){const r=await navigator.serviceWorker.ready;if(r?.showNotification){await r.showNotification(title,{body,tag:"firebase-chat"});return}}new Notification(title,{body,tag:"firebase-chat"})}catch{try{new Notification(title,{body})}catch{}}}
+function mentioned(text){const t=String(text||"").toLowerCase();return t.includes(`@${currentUsername.toLowerCase()}`)||t.includes(String(auth.currentUser?.email||"").toLowerCase())}
+async function maybeNotify(p){if(notificationPrefs.mode==="off"||p.senderUid===auth.currentUser?.uid)return;if(notificationPrefs.mode==="mentions"&&!mentioned(p.text))return;await showNotification(notificationPrefs.hideContent?"New encrypted chat message":`${p.username||"Someone"} in #general`,notificationPrefs.hideContent?"New encrypted message.":(p.text||"Sent a file."))}
 
-  wrapper.innerHTML=`<div class="avatar">${avatarFor(data.username)}</div><div class="bubble-wrap">
-    <div class="meta">${escapeHtml(data.username)} · ${formatTime(data.createdAt)}</div>
-    <div class="bubble">${body}</div></div>`;
+async function deriveVaultKey(password,salt){const raw=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:PBKDF2_ITERATIONS,hash:"SHA-256"},raw,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function encryptBytes(key,data){const iv=randomBytes(12),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,data);return{iv:bytesToB64(iv),ciphertext:bytesToB64(new Uint8Array(ct))}}
+async function decryptBytes(key,rec){return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToBytes(rec.iv)},key,b64ToBytes(rec.ciphertext)))}
+async function encryptJson(key,obj){return encryptBytes(key,new TextEncoder().encode(JSON.stringify(obj)))}
+async function decryptJson(key,rec){return JSON.parse(new TextDecoder().decode(await decryptBytes(key,rec)))}
+async function generatePair(){return crypto.subtle.generateKey({name:"ECDH",namedCurve:ECDH_CURVE},true,["deriveBits"])}
+async function exportJwk(key){return crypto.subtle.exportKey("jwk",key)}
+async function importPrivate(jwk){return crypto.subtle.importKey("jwk",jwk,{name:"ECDH",namedCurve:ECDH_CURVE},false,["deriveBits"])}
+async function importPublic(jwk){return crypto.subtle.importKey("jwk",jwk,{name:"ECDH",namedCurve:ECDH_CURVE},false,[])}
+async function hkdf(bits,salt,info){const base=await crypto.subtle.importKey("raw",bits,{name:"HKDF"},false,["deriveKey"]);return crypto.subtle.deriveKey({name:"HKDF",hash:"SHA-256",salt,info:new TextEncoder().encode(info) },base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function wrapRawKey(raw,recipientPublicJwk){const ep=await generatePair(),pub=await importPublic(recipientPublicJwk),bits=await crypto.subtle.deriveBits({name:"ECDH",public:pub},ep.privateKey,256),salt=randomBytes(16),wk=await hkdf(new Uint8Array(bits),salt,"firebase-chat-keywrap-v3"),iv=randomBytes(12),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},wk,raw);return{ephemeralPublicJwk:await exportJwk(ep.publicKey),salt:bytesToB64(salt),iv:bytesToB64(iv),ciphertext:bytesToB64(new Uint8Array(ct))}}
+async function unwrapRawKey(env,privateKey){const ep=await importPublic(env.ephemeralPublicJwk),bits=await crypto.subtle.deriveBits({name:"ECDH",public:ep},privateKey,256),wk=await hkdf(new Uint8Array(bits),b64ToBytes(env.salt),"firebase-chat-keywrap-v3");return decryptBytes(wk,env)}
+async function encryptPayload(payload,recipientPublicJwks){const raw=randomBytes(32),iv=randomBytes(12),aes=await crypto.subtle.importKey("raw",raw,{name:"AES-GCM"},false,["encrypt"]),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},aes,new TextEncoder().encode(JSON.stringify(payload))),envelopes={};for(const[uid,jwk]of Object.entries(recipientPublicJwks))envelopes[uid]=await wrapRawKey(raw,jwk);return{iv:bytesToB64(iv),ciphertext:bytesToB64(new Uint8Array(ct)),envelopes}}
+async function decryptPayload(data,privateKey){const raw=await unwrapRawKey(data.envelopes[auth.currentUser.uid],privateKey),aes=await crypto.subtle.importKey("raw",raw,{name:"AES-GCM"},false,["decrypt"]),plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToBytes(data.iv)},aes,b64ToBytes(data.ciphertext));return JSON.parse(new TextDecoder().decode(plain))}
 
-  if(mine){
-    wrapper.title="Double-click to delete this message";
-    wrapper.addEventListener("dblclick",async()=>{
-      if(!confirm("Delete this message?"))return;
-      try{await deleteDoc(doc(db,"messages",id))}catch(err){console.error(err);alert("Could not delete the message.")}
-    });
-  }
-  return wrapper;
-}
+async function dirPermission(dir){try{if((await dir.queryPermission?.({mode:"readwrite"}))==="granted")return true;if((await dir.requestPermission?.({mode:"readwrite"}))==="granted")return true}catch{}return false}
+async function writeFile(dir,name,data){const h=await dir.getFileHandle(name,{create:true}),w=await h.createWritable();await w.write(data);await w.close()}
+async function readFile(dir,name){const h=await dir.getFileHandle(name),f=await h.getFile();return f.text()}
+async function createVault(){if(!("showDirectoryPicker"in window))throw new Error("Your browser cannot create a local directory from this site. Use current Chrome or Edge on desktop.");const parent=await window.showDirectoryPicker({mode:"readwrite"});if(!(await dirPermission(parent)))throw new Error("Folder access was not granted.");const name=`chat-vault-${randomToken(20)}`,dir=await parent.getDirectoryHandle(name,{create:true}),manifest={version:CRYPTO_VERSION,vaultId:randomToken(32),salt:bytesToB64(randomBytes(16)),algorithm:"ECDH P-256 + AES-GCM + PBKDF2-SHA-256",days:KEY_DAYS,slotsPerDay:KEY_SLOTS,createdAt:new Date().toISOString()};await writeFile(dir,"vault-manifest.json",JSON.stringify(manifest,null,2));return{dir,name,manifest}}
+async function generateVaultFiles(dir,manifest,password){const vk=await deriveVaultKey(password,b64ToBytes(manifest.salt));for(let d=0;d<KEY_DAYS;d++){const date=addDays(today(),d),slots=[];for(let slot=0;slot<KEY_SLOTS;slot++){const p=await generatePair();slots.push({slot,publicJwk:await exportJwk(p.publicKey),privateJwk:await exportJwk(p.privateKey)})}const encSlots=[];for(const s of slots){const enc=await encryptJson(vk,{privateJwk:s.privateJwk});encSlots.push({slot:s.slot,publicJwk:s.publicJwk,...enc})}await writeFile(dir,`day-${date}.json`,JSON.stringify({version:CRYPTO_VERSION,date,slots:encSlots}));if(d%5===0){$("vaultStatus").textContent=`Generating encrypted key vault: ${d+1}/${KEY_DAYS} days`;await new Promise(r=>setTimeout(r,0))}}
+await writeFile(dir,"vault-check.json",JSON.stringify({vaultId:manifest.vaultId,createdAt:new Date().toISOString()}));return vk}
+async function openVault(dir,password){if(!(await dirPermission(dir)))throw new Error("Folder access was not granted.");const manifest=JSON.parse(await readFile(dir,"vault-manifest.json"));if(manifest.version!==CRYPTO_VERSION||manifest.slotsPerDay!==KEY_SLOTS)throw new Error("Unsupported key directory version.");const reg=await getDoc(doc(db,"deviceRegistry",auth.currentUser.uid));if(!reg.exists())throw new Error("This account has not registered a trusted device yet.");if(reg.data().vaultId!==manifest.vaultId)throw new Error("This is not the registered key directory for this account.");const vk=await deriveVaultKey(password,b64ToBytes(manifest.salt));const day=JSON.parse(await readFile(dir,`day-${today()}.json`)),slots=[];for(const s of day.slots){const p=await decryptJson(vk,s);slots.push({slot:s.slot,publicJwk:s.publicJwk,privateJwk:p.privateJwk})}vaultHandle=dir;vaultManifest=manifest;todayVaultKey=vk;return slots}
+async function createAndRegisterVault(password){progress(true);try{const made=await createVault(),vk=await generateVaultFiles(made.dir,made.manifest,password);const todaySlots=[];const day=JSON.parse(await readFile(made.dir,`day-${today()}.json`));for(const s of day.slots){const p=await decryptJson(vk,s);todaySlots.push({slot:s.slot,publicJwk:s.publicJwk,privateJwk:p.privateJwk})}const regRef=doc(db,"deviceRegistry",auth.currentUser.uid),existing=await getDoc(regRef);if(existing.exists())throw new Error("This account already has a registered key directory. Select and securely transfer the existing directory instead.");await setDoc(regRef,{vaultId:made.manifest.vaultId,createdAt:serverTimestamp(),algorithm:made.manifest.algorithm});for(let d=0;d<KEY_DAYS;d++){const date=addDays(today(),d),raw=JSON.parse(await readFile(made.dir,`day-${date}.json`));await setDoc(doc(db,"keyBundles",auth.currentUser.uid,"daily",date),{vaultId:made.manifest.vaultId,keys:raw.slots.map(x=>({slot:x.slot,publicJwk:x.publicJwk})),createdAt:serverTimestamp()})}vaultHandle=made.dir;vaultManifest=made.manifest;todayVaultKey=vk;await showVaultName(made.name);return todaySlots}finally{progress(false)}}
+async function showVaultName(name){$("vaultStatus").innerHTML=`Key directory: <span class="vault-name">${escapeHtml(name)}</span> <span class="pill">shown for 5 minutes</span>`;setTimeout(()=>{$("vaultStatus").textContent="Key directory name hidden. The vault remains unlocked only for this browser session."},300000)}
+async function loadTodaySlots(){const day=JSON.parse(await readFile(vaultHandle,`day-${today()}.json`)),slots=[];for(const s of day.slots){const p=await decryptJson(todayVaultKey,s);slots.push({slot:s.slot,publicJwk:s.publicJwk,privateJwk:p.privateJwk})}return slots}
+async function unlockVault(slots){const todaySlots=slots||await loadTodaySlots();if(!todaySlots.length)throw new Error("No private keys were found for today.");vaultHandle._todaySlots=todaySlots;$("vaultPassword").value="";$("password").value="";vaultScreen.classList.add("hidden");appScreen.classList.remove("hidden");currentUsername=USER_NAMES[(auth.currentUser.email||"").toLowerCase()]||auth.currentUser.email.split("@")[0];$("currentUser").textContent=currentUsername;updateNotificationStatus();subscribeToMessages();input.focus()}
+async function privateKeyFor(date,slot){let daySlots;if(date===today()){daySlots=vaultHandle._todaySlots}else{const raw=JSON.parse(await readFile(vaultHandle,`day-${date}.json`));daySlots=[];for(const s of raw.slots){const p=await decryptJson(todayVaultKey,s);daySlots.push({slot:s.slot,privateJwk:p.privateJwk,publicJwk:s.publicJwk})}}const found=daySlots.find(x=>Number(x.slot)===Number(slot));if(!found)throw new Error("Private key slot not found.");return importPrivate(found.privateJwk)}
 
-function scrollToBottom(){requestAnimationFrame(()=>messagesEl.scrollTop=messagesEl.scrollHeight)}
+async function profiles(){const out={},snap=await getDocs(query(collection(db,"profiles"),where("emailLower","in",Object.values(USERS).map(x=>x.toLowerCase()))));snap.forEach(x=>out[x.id]=x.data());return out}
+async function publicKeysFor(date,slot){const ps=await profiles(),out={};for(const uid of Object.keys(ps)){const s=await getDoc(doc(db,"keyBundles",uid,"daily",date));if(!s.exists())throw new Error(`No public keys registered for ${ps[uid].username||uid} on ${date}.`);const rec=(s.data().keys||[]).find(x=>Number(x.slot)===Number(slot));if(!rec)throw new Error("Recipient key slot missing.");out[uid]=rec.publicJwk}return out}
+async function encryptMessage(payload){const date=today(),slot=Math.floor(Math.random()*KEY_SLOTS),pks=await publicKeysFor(date,slot),e=await encryptPayload(payload,pks);return{...e,cryptoVersion:CRYPTO_VERSION,keyDate:date,keySlot:slot}}
+async function decryptMessage(data){const key=await privateKeyFor(data.keyDate,Number(data.keySlot));return decryptPayload(data,key)}
 
-function subscribeToMessages(){
-  if(unsubscribeMessages)unsubscribeMessages();
-  const q=query(collection(db,"messages"),orderBy("createdAt","asc"),limit(200));
-  unsubscribeMessages=onSnapshot(q,snapshot=>{
-    messagesEl.innerHTML="";
-    if(snapshot.empty){
-      messagesEl.innerHTML=`<div class="empty"><div class="big">💬</div><div>No messages yet.<br>Start the conversation!</div></div>`;
-      return;
-    }
-    snapshot.forEach(item=>messagesEl.appendChild(renderMessage(item.data(),item.id)));
-    scrollToBottom();
-  },err=>{
-    console.error(err);
-    messagesEl.innerHTML=`<div class="empty"><div class="big">⚠️</div><div>Could not load messages.<br>Check your Firestore rules.</div></div>`;
-  });
-}
+async function renderMessage(data,id){const mine=data.senderUid===auth.currentUser.uid;let p;try{p=await decryptMessage(data)}catch{const n=document.createElement("div");n.className=`message ${mine?"mine":""}`;n.innerHTML=`<div class="avatar">?</div><div class="bubble-wrap"><div class="meta">Encrypted message</div><div class="bubble">🔒 Unable to decrypt on this device.</div></div>`;return n}const w=document.createElement("div");w.className=`message ${mine?"mine":""}`;const wrap=document.createElement("div");wrap.className="bubble-wrap";wrap.innerHTML=`<div class="meta">${escapeHtml(p.username)} · ${formatTime(data.createdAt)}</div>`;const b=document.createElement("div");b.className="bubble";if(p.type==="text")b.textContent=p.text||"";else{const image=/^image\//.test(p.contentType||""),btn=document.createElement("button");btn.className="file";btn.innerHTML=`<div class="file-icon">${image?"🖼️":"📎"}</div><div class="file-info"><div class="file-name">${escapeHtml(p.fileName)}</div><div class="file-size">${formatSize(p.size)} • Decrypt & open</div></div>`;btn.onclick=async()=>{try{const bytes=b64ToBytes(p.data),url=URL.createObjectURL(new Blob([bytes],{type:p.contentType||"application/octet-stream"})),a=document.createElement("a");a.href=url;a.download=p.fileName||"download";a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}catch{showToast("Could not decrypt file.")}};b.appendChild(btn);if(image){const img=document.createElement("img");img.alt=p.fileName||"image";img.src=URL.createObjectURL(new Blob([b64ToBytes(p.data)],{type:p.contentType}));img.style.marginTop="9px";b.appendChild(img)}}wrap.appendChild(b);w.innerHTML=`<div class="avatar">${avatarFor(p.username)}</div>`;w.appendChild(wrap);if(mine){w.title="Double-click to delete";w.ondblclick=async()=>{if(confirm("Delete this message?"))try{await deleteDoc(doc(db,"messages",id))}catch{showToast("Could not delete message.")}}}return w}
+function scrollBottom(){requestAnimationFrame(()=>$("messages").scrollTop=$("messages").scrollHeight)}
+function subscribeToMessages(){if(unsubscribeMessages)unsubscribeMessages();const q=query(collection(db,"messages"),orderBy("createdAt","asc"),limit(200));let initial=true;unsubscribeMessages=onSnapshot(q,async snap=>{$("messages").innerHTML="";if(snap.empty){$("messages").innerHTML=`<div class="empty"><div class="big">💬</div><div>No messages yet.<br>Start the conversation!</div></div>`;return}for(const d of snap.docs){const n=await renderMessage(d.data(),d.id);$("messages").appendChild(n)}for(const ch of snap.docChanges())if(!initial&&ch.type==="added"){try{const p=await decryptMessage(ch.doc.data());await maybeNotify({...p,senderUid:ch.doc.data().senderUid})}catch{}}initial=false;scrollBottom()},err=>{$("messages").innerHTML=`<div class="empty"><div class="big">⚠️</div><div>Could not load encrypted messages.<br>Check your Firestore rules and local key directory.</div></div>`;console.error(err)})}
 
-async function sendMessage(){
-  const text=input.value.trim();
-  if(!text||!auth.currentUser)return;
-  sendBtn.disabled=true;
-  try{
-    await addDoc(collection(db,"messages"),{
-      uid:auth.currentUser.uid,
-      username:USER_NAMES[auth.currentUser.email]||auth.currentUser.email,
-      text,
-      type:"text",
-      createdAt:serverTimestamp()
-    });
-    input.value="";resizeInput();
-  }catch(err){console.error(err);alert("Could not send the message.")}
-  finally{sendBtn.disabled=false;input.focus()}
-}
+async function sendEncryptedPayload(payload){const e=await encryptMessage(payload);await addDoc(collection(db,"messages"),{senderUid:auth.currentUser.uid,cryptoVersion:e.cryptoVersion,keyDate:e.keyDate,keySlot:e.keySlot,iv:e.iv,ciphertext:e.ciphertext,envelopes:e.envelopes,createdAt:serverTimestamp()})}
+async function sendMessage(){const text=input.value.trim();if(!text||!auth.currentUser)return;if(await command(text)){input.value="";resizeInput();return}sendBtn.disabled=true;progress(true);try{await sendEncryptedPayload({type:"text",username:currentUsername,text});input.value="";resizeInput()}catch(e){showToast(`Could not send encrypted message: ${e.message}`)}finally{sendBtn.disabled=false;progress(false);input.focus()}}
+function fileB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]||"");r.onerror=rej;r.readAsDataURL(file)})}
+async function uploadFile(file){if(file.size>MAX_FILE_SIZE)return showToast(`${file.name} is too large. Maximum file size is 500 KB.`);progress(true);try{await sendEncryptedPayload({type:"file",username:currentUsername,fileName:file.name,contentType:file.type||"application/octet-stream",size:file.size,data:await fileB64(file)})}catch(e){showToast(`Encrypted upload failed: ${e.message}`)}finally{progress(false)}}
 
-function fileToDataUrl(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=()=>resolve(reader.result);
-    reader.onerror=reject;
-    reader.readAsDataURL(file);
-  });
-}
+async function setVerification(enabled){if(!isAdmin())return showToast("/closeverify is admin-only.");await setDoc(doc(db,"settings","verification"),{enabled,updatedAt:serverTimestamp()},{merge:true});verificationEnabled=enabled;showToast(`Verification is now ${enabled?"enabled":"disabled"}.`)}
+async function getVerification(){try{const s=await getDoc(doc(db,"settings","verification"));verificationEnabled=!s.exists()||s.data().enabled!==false}catch{verificationEnabled=true}}
+async function purge(days){if(!isAdmin())return showToast("/purge is admin-only.");if(!Number.isInteger(days)||days<1||days>3650)return showToast("Use /purge <days>, for example /purge 30.");progress(true);try{const cutoff=new Date(Date.now()-days*86400000),snap=await getDocs(query(collection(db,"messages"),where("createdAt","<",cutoff)));let batch=writeBatch(db),n=0,total=0;for(const d of snap.docs){batch.delete(d.ref);n++;total++;if(n===450){await batch.commit();batch=writeBatch(db);n=0}}if(n)await batch.commit();showToast(`Purged ${total} message(s) older than ${days} day(s).`)}catch(e){showToast(`Purge failed: ${e.message}`)}finally{progress(false)}}
+async function command(text){const p=text.trim().split(/\s+/),c=p[0].toLowerCase();if(c==="/notification"){const a=(p[1]||"").toLowerCase();if(!a)notificationPrefs.mode=notificationPrefs.mode==="all"?"mentions":notificationPrefs.mode==="mentions"?"off":"all";else if(["all","mentions","off"].includes(a))notificationPrefs.mode=a;else if(["hide","hidden"].includes(a))notificationPrefs.hideContent=true;else if(["show","visible"].includes(a))notificationPrefs.hideContent=false;else return showToast("Use /notification, /notification all, /notification mentions, /notification off, /notification hide, or /notification show.");saveNotificationPrefs();await requestNotifications();showToast(`Notifications: ${notificationPrefs.mode}; ${notificationPrefs.hideContent?"content hidden":"content shown"}.`);return true}if(c==="/verify"){if(!verificationEnabled)return showToast("Verification is currently closed."),true;$("vaultScreen").classList.remove("hidden");$("app").classList.add("hidden");$("vaultStatus").innerHTML="Choose <strong>Select existing directory</strong> to unlock this device, or create a new trusted vault.";return true}if(c==="/closeverify"){await setVerification(false);return true}if(c==="/purge"){await purge(Number(p[1]));return true}if(c.startsWith("/"))showToast("Unknown command.");return true}
 
-async function uploadFile(file){
-  if(!auth.currentUser)return;
-  if(file.size>MAX_FILE_SIZE){
-    alert(`${file.name} is too large. Maximum file size is 500 KB.`);
-    return;
-  }
-  progress.classList.add("on");
-  try{
-    const data=await fileToDataUrl(file);
-    await addDoc(collection(db,"messages"),{
-      uid:auth.currentUser.uid,
-      username:USER_NAMES[auth.currentUser.email]||auth.currentUser.email,
-      type:"file",
-      fileName:file.name,contentType:file.type||"application/octet-stream",
-      size:file.size,data,createdAt:serverTimestamp()
-    });
-  }catch(err){
-    console.error(err);
-    alert(`Upload failed: ${err.message}`);
-  }finally{progress.classList.remove("on")}
-}
-
-function startChat(user){
-  currentUsername=USER_NAMES[user.email.toLowerCase()]||user.email.split("@")[0];
-
-  loginScreen.classList.add("hidden");
-  appScreen.classList.remove("hidden");
-  $("currentUser").textContent=currentUsername;
-
-  subscribeToMessages();
-  input.focus();
-}
-loginForm.addEventListener("submit",async e=>{
-  e.preventDefault();
-
-  if(loginForm.dataset.busy==="1")return;
-  loginForm.dataset.busy="1";
-  errorEl.textContent="";
-
-  const login=$("username").value.trim();
-  const password=$("password").value;
-
-  const username=Object.keys(USERS).find(
-    name=>name.toLowerCase()===login.toLowerCase()
-  );
-
-  const email=username?USERS[username]:login;
-
-  if(!email.includes("@")){
-    errorEl.textContent="Enter a valid username or email.";
-    loginForm.dataset.busy="0";
-    return;
-  }
-
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
-  }catch(err){
-    console.error("Firebase login error:",err.code,err.message);
-
-    if(err.code==="auth/quota-exceeded"){
-      errorEl.textContent="Firebase is temporarily limiting password verification. Please try again later.";
-    }else if(
-      err.code==="auth/invalid-credential"||
-      err.code==="auth/wrong-password"||
-      err.code==="auth/user-not-found"
-    ){
-      errorEl.textContent="Invalid email or password.";
-    }else if(err.code==="auth/invalid-email"){
-      errorEl.textContent="Invalid email address.";
-    }else{
-      errorEl.textContent=`Login failed: ${err.code}`;
-    }
-  }finally{
-    loginForm.dataset.busy="0";
-  }
-});
-onAuthStateChanged(auth,user=>{
-  if(!user){
-    loginScreen.classList.remove("hidden");
-    appScreen.classList.add("hidden");
-    return;
-  }
-
-  startChat(user);
-});
-
-sendBtn.addEventListener("click",sendMessage);
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}
-});
-function resizeInput(){input.style.height="auto";input.style.height=Math.min(input.scrollHeight,150)+"px"}
-input.addEventListener("input",resizeInput);
-
-$("fileBtn").addEventListener("click",()=>fileInput.click());
-fileInput.addEventListener("change",async()=>{
-  const files=[...fileInput.files];fileInput.value="";
-  for(const file of files)await uploadFile(file);
-});
-
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(e.currentTarget.dataset.busy==="1")return;e.currentTarget.dataset.busy="1";$('error').textContent="";const login=$("username").value.trim(),pw=$("password").value,name=Object.keys(USERS).find(x=>x.toLowerCase()===login.toLowerCase()),email=name?USERS[name]:login;if(!email.includes("@")){$('error').textContent="Enter a valid username or email.";e.currentTarget.dataset.busy="0";return}try{await signInWithEmailAndPassword(auth,email,pw)}catch(err){if(["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code))$('error').textContent="Invalid email or password.";else $('error').textContent=err.code||"Login failed."}finally{e.currentTarget.dataset.busy="0"}});
+onAuthStateChanged(auth,async user=>{if(!user){$("loginScreen").classList.remove("hidden");$("vaultScreen").classList.add("hidden");$("app").classList.add("hidden");return}await getVerification();$("loginScreen").classList.add("hidden");$("vaultScreen").classList.remove("hidden");$("app").classList.add("hidden");$("vaultPassword").value="";$("vaultError").textContent="";try{await requestNotifications()}catch{}});
+$("selectVaultBtn").onclick=async()=>{try{await requestNotifications();const pw=$("vaultPassword").value;if(!pw)throw new Error("Enter the account password.");const dir=await window.showDirectoryPicker({mode:"readwrite"});if(!(await dirPermission(dir)))throw new Error("Folder access was not granted.");const reg=await getDoc(doc(db,"deviceRegistry",auth.currentUser.uid));if(!reg.exists())throw new Error("No trusted vault is registered for this account. Create it on the first trusted device.");const manifest=JSON.parse(await readFile(dir,"vault-manifest.json"));if(manifest.vaultId!==reg.data().vaultId)throw new Error("This is not the registered key directory.");const slots=await openVault(dir,pw);await showVaultName(dir.name);await unlockVault(slots)}catch(e){console.error(e);$("vaultError").textContent=e.message}};
+$("createVaultBtn").onclick=async()=>{try{await requestNotifications();if(!verificationEnabled)throw new Error("Verification is currently closed.");const pw=$("vaultPassword").value;if(!pw)throw new Error("Enter the account password.");const slots=await createAndRegisterVault(pw);await unlockVault(slots);showToast("365 × 5 encrypted local key pairs created. Keep the directory secure.")}catch(e){console.error(e);$("vaultError").textContent=e.message}};
+$("sendBtn").onclick=sendMessage;$("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});function resizeInput(){const x=$("messageInput");x.style.height="auto";x.style.height=Math.min(x.scrollHeight,150)+"px"}$("messageInput").addEventListener("input",resizeInput);$("fileBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=async()=>{const files=[...$("fileInput").files];$("fileInput").value="";for(const f of files)await uploadFile(f)};
 const emojiSet=["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😎","🤓","🧐","🤔","😐","😑","😶","🙄","😏","😣","😥","😮","🤐","😯","😪","😫","🥱","😴","🤗","🤩","😱","😡","🤬","😭","😢","😤","👍","👎","👏","🙌","🙏","❤️","🔥","✨","🎉","💯","💀","👀","🚀","💬","✅","❌","⭐","🎮","🐱","🐶"];
-$("emojiList").innerHTML=emojiSet.map(e=>`<button type="button" data-emoji="${e}">${e}</button>`).join("");
-$("emojiBtn").addEventListener("click",e=>{e.stopPropagation();emojiPicker.classList.toggle("hidden")});
-$("emojiList").addEventListener("click",e=>{
-  const b=e.target.closest("[data-emoji]");if(!b)return;
-  input.value+=b.dataset.emoji;input.focus();resizeInput();
-});
-document.addEventListener("click",e=>{
-  if(!emojiPicker.contains(e.target)&&e.target!==$("emojiBtn"))emojiPicker.classList.add("hidden");
-});
+$("emojiList").innerHTML=emojiSet.map(e=>`<button type="button" data-emoji="${e}">${e}</button>`).join("");$("emojiBtn").onclick=e=>{e.stopPropagation();$("emojiPicker").classList.toggle("hidden")};$("emojiList").onclick=e=>{const b=e.target.closest("[data-emoji]");if(!b)return;$("messageInput").value+=b.dataset.emoji;$("messageInput").focus();resizeInput()};document.onclick=e=>{if(!$("emojiPicker").contains(e.target)&&e.target!==$("emojiBtn"))$("emojiPicker").classList.add("hidden")};
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));updateNotificationStatus();
 </script>
-</body>
-</html>
+</body></html>
